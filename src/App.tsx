@@ -20,32 +20,48 @@ enum SortType {
   Default = 'DEFAULT',
   Alphabetical = 'ALPHABETICAL',
   Length = 'LENGTH',
-  Reverse = 'REVERSE',
 }
 
 export const App: React.FC = () => {
   const [sortType, setSortType] = useState<SortType>(SortType.Default);
+  const [isReversed, setIsReversed] = useState<boolean>(false);
 
   const handleSortChange = (type: SortType) => {
     setSortType(type);
   };
 
+  const toggleReverse = () => {
+    setIsReversed(prev => !prev);
+  };
+
+  const resetSorting = () => {
+    setSortType(SortType.Default);
+    setIsReversed(false);
+  };
+
   const getSortedGoods = () => {
-    switch (sortType) {
-      case SortType.Alphabetical:
-        // Criando a cópia e ordenando imediatamente como o mentor sugeriu
-        return [...goodsFromServer].sort((a, b) => a.localeCompare(b));
-      case SortType.Length:
-        return [...goodsFromServer].sort((a, b) => a.length - b.length);
-      case SortType.Reverse:
-        return [...goodsFromServer].reverse();
-      case SortType.Default:
-      default:
-        return [...goodsFromServer];
+    // Fazemos a cópia do array original
+    let goods = [...goodsFromServer];
+
+    // 1º passo: Aplica a ordenação se houver alguma selecionada
+    if (sortType === SortType.Alphabetical) {
+      goods.sort((a, b) => a.localeCompare(b));
+    } else if (sortType === SortType.Length) {
+      goods.sort((a, b) => a.length - b.length);
     }
+
+    // 2º passo: Se o botão 'Reverse' estiver ativo, inverte o resultado atual
+    if (isReversed) {
+      goods.reverse();
+    }
+
+    return goods;
   };
 
   const visibleGoods = getSortedGoods();
+
+  // O botão reset só aparece se a ordem não for a padrão OU se estiver invertido
+  const hasChanges = sortType !== SortType.Default || isReversed;
 
   return (
     <div className="section content">
@@ -68,18 +84,17 @@ export const App: React.FC = () => {
 
         <button
           type="button"
-          className={`button is-warning ${sortType !== SortType.Reverse ? 'is-light' : ''}`}
-          onClick={() => handleSortChange(SortType.Reverse)}
+          className={`button is-warning ${!isReversed ? 'is-light' : ''}`}
+          onClick={toggleReverse}
         >
           Reverse
         </button>
 
-        {/* Renderização condicional: o botão Reset só aparece se a ordenação não for Default */}
-        {sortType !== SortType.Default && (
+        {hasChanges && (
           <button
             type="button"
             className="button is-danger"
-            onClick={() => handleSortChange(SortType.Default)}
+            onClick={resetSorting}
           >
             Reset
           </button>
