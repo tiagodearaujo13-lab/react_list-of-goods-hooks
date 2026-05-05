@@ -30,19 +30,17 @@ export const App: React.FC = () => {
   };
 
   const getSortedGoods = () => {
-    // Fazemos uma cópia para não mutar o array original
-    const goodsCopy = [...goodsFromServer];
-
     switch (sortType) {
       case SortType.Alphabetical:
-        return goodsCopy.sort((a, b) => a.localeCompare(b));
+        // Criando a cópia e ordenando imediatamente como o mentor sugeriu
+        return [...goodsFromServer].sort((a, b) => a.localeCompare(b));
       case SortType.Length:
-        return goodsCopy.sort((a, b) => a.length - b.length);
+        return [...goodsFromServer].sort((a, b) => a.length - b.length);
       case SortType.Reverse:
-        return goodsCopy.reverse();
+        return [...goodsFromServer].reverse();
       case SortType.Default:
       default:
-        return goodsCopy;
+        return [...goodsFromServer];
     }
   };
 
@@ -75,13 +73,16 @@ export const App: React.FC = () => {
           Reverse
         </button>
 
-        <button
-          type="button"
-          className={`button is-danger ${sortType !== SortType.Default ? 'is-light' : ''}`}
-          onClick={() => handleSortChange(SortType.Default)}
-        >
-          Reset
-        </button>
+        {/* Renderização condicional: o botão Reset só aparece se a ordenação não for Default */}
+        {sortType !== SortType.Default && (
+          <button
+            type="button"
+            className="button is-danger"
+            onClick={() => handleSortChange(SortType.Default)}
+          >
+            Reset
+          </button>
+        )}
       </div>
 
       <ul>
